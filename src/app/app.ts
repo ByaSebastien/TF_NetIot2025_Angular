@@ -1,12 +1,33 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {Component, inject} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {HouseStateModel} from './models/house-state.model';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('TF_NetIot2025_Angular');
+
+  private readonly _httpClient: HttpClient = inject(HttpClient);
+
+  houseState? : HouseStateModel;
+
+  constructor() {
+
+    this._httpClient.get<HouseStateModel>('https://localhost:7267/api/housestate').subscribe(
+      (result) => {
+        this.houseState  = result;
+      }
+    );
+  }
+
+  toggleLight() {
+    this._httpClient.post<void>('https://localhost:7267/api/housestate',null).subscribe(
+      () => {
+        console.log("House state changed");
+      }
+    );
+  }
 }
